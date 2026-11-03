@@ -101,6 +101,24 @@ The detail, with what the log said in each case, is in
 
 ## Credits and license
 
+**Almost none of what makes this work is ours.** This repository is a recipe that glues together other people's work; without any one of these pieces there would be no port at all.
+
+| What it does | Who made it | License |
+|---|---|---|
+| **[aurora](https://github.com/encounter/aurora)** — stands in for the GameCube/Wii GX, the window and input | **Luke Street** (encounter) | MIT, © 2022 |
+| **[Wiicompiled](https://github.com/patchzyy/Wiicompiled)** — turns a Wii disc's PowerPC into native C++, and the runtime around it | **patchzyy** | GPL-3.0 |
+| **[uwp-dep](https://github.com/worleydl/uwp-dep)** — Dawn, SDL3, nod and dxcompiler **built for UWP** — the single reason any of this runs on an Xbox | **Daniel Worley** (worleydl) | libuwp: zlib, © 2025 |
+| **[SDL](https://github.com/libsdl-org/SDL)** — window, input and audio | **Sam Lantinga** and the SDL contributors | zlib |
+| **[imgui](https://github.com/ocornut/imgui)** — the in-game options overlay | **Omar Cornut** | MIT |
+| **[nod](https://github.com/encounter/nod)** — reads the disc image | **Luke Street** | MIT, © 2021 |
+| **[Dawn](https://dawn.googlesource.com/dawn)** — the WebGPU implementation | **The Dawn & Tint Authors** (Google) | BSD-3-Clause |
+| **[Retro Rewind](https://github.com/RetroRewind-Team)** — the fan track and character distribution this runs | the **Retro Rewind** team | its own terms |
+
+Special mention to **Daniel Worley**: the UWP builds in `uwp-dep` are what make an Xbox port of this possible. We did not build them, we used them.
+
+**The packaging recipe, the tooling and this documentation** are by **Recompilaciones**.
+
+
 The tools and the recipe are **Recompilaciones**', under the [MIT](LICENSE) — the same license as
 Aurora, which is the third-party code this repository patches. Aurora is © 2022 Luke Street.
 *Mario Kart Wii* is © Nintendo; Retro Rewind belongs to its own team; Wiicompiled to its author.

@@ -102,6 +102,24 @@ El detalle, con lo que decía el registro en cada caso, está en
 
 ## Créditos y licencia
 
+**Casi nada de lo que hace que esto funcione es nuestro.** Este repositorio es una receta que une el trabajo de otros; sin cualquiera de estas piezas no habría port.
+
+| Qué hace | Quién lo hizo | Licencia |
+|---|---|---|
+| **[aurora](https://github.com/encounter/aurora)** — hace de GX de GameCube/Wii, de ventana y de entrada | **Luke Street** (encounter) | MIT, © 2022 |
+| **[Wiicompiled](https://github.com/patchzyy/Wiicompiled)** — convierte el PowerPC de un disco de Wii en C++ nativo, y el runtime que lo rodea | **patchzyy** | GPL-3.0 |
+| **[uwp-dep](https://github.com/worleydl/uwp-dep)** — Dawn, SDL3, nod y dxcompiler **compilados para UWP**: la única razón por la que algo de esto corre en una Xbox | **Daniel Worley** (worleydl) | libuwp: zlib, © 2025 |
+| **[SDL](https://github.com/libsdl-org/SDL)** — ventana, mando y audio | **Sam Lantinga** and the SDL contributors | zlib |
+| **[imgui](https://github.com/ocornut/imgui)** — el menú de opciones dentro del juego | **Omar Cornut** | MIT |
+| **[nod](https://github.com/encounter/nod)** — lee la imagen del disco | **Luke Street** | MIT, © 2021 |
+| **[Dawn](https://dawn.googlesource.com/dawn)** — la implementación de WebGPU | **The Dawn & Tint Authors** (Google) | BSD-3-Clause |
+| **[Retro Rewind](https://github.com/RetroRewind-Team)** — la distribución de pistas y personajes que esto ejecuta | the **Retro Rewind** team | its own terms |
+
+Mención especial a **Daniel Worley**: las compilaciones UWP de `uwp-dep` son lo que hace posible este port a Xbox. No las hicimos nosotros, las usamos.
+
+**La receta de empaquetado, las herramientas y esta documentación** son de **Recompilaciones**.
+
+
 Las herramientas y la receta son de **Recompilaciones**, bajo la [MIT](LICENSE) —la misma de Aurora,
 que es el código de terceros que este repositorio parchea—. Aurora es
 © 2022 Luke Street. *Mario Kart Wii* es © Nintendo; Retro Rewind es de su propio equipo; Wiicompiled
