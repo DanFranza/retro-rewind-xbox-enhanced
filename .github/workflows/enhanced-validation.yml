@@ -15,3 +15,17 @@ jobs:
           python-version: '3.12'
       - run: python -m compileall -q tools
       - run: python -m unittest discover -s tests -v
+      - name: Fetch pinned WiiCompiled source (no game data)
+        uses: actions/checkout@v5
+        with:
+          repository: patchzyy/Wiicompiled
+          ref: v0.2.31
+          path: upstream-check
+          persist-credentials: false
+          submodules: false
+      - name: Validate runtime adaptation against upstream
+        run: |
+          python tools/patch-runtime-v0231.py upstream-check/runtime --check
+          python tools/patch-runtime-v0231.py upstream-check/runtime
+          python tools/patch-runtime-v0231.py upstream-check/runtime --check | grep '^0 files'
+          git -C upstream-check diff --check
