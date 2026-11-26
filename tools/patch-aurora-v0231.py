@@ -23,7 +23,9 @@ def system(s):
     # Diagnostic hardware probing is optional; avoid registry and NT APIs in the app container.
     return '#if defined(AURORA_WINDOWS_STORE)\n#include "system_info.hpp"\nnamespace aurora { void log_system_information() {} }\n#else\n'+s+'\n#endif\n'
 def gpu(s):
-    s=one(s,"#if defined(WEBGPU_DAWN) && !defined(__MINGW32__)","#if defined(WEBGPU_DAWN) && !defined(__MINGW32__) && !defined(AURORA_WINDOWS_STORE)")
+    anchor="#if defined(WEBGPU_DAWN) && !defined(__MINGW32__)"
+    if s.count(anchor)!=2: raise ValueError("Dawn native guard count changed")
+    s=s.replace(anchor,anchor+" && !defined(AURORA_WINDOWS_STORE)")
     s=one(s,"void serialize_pipeline_caches() noexcept {\n#if defined(WEBGPU_DAWN) && defined(_WIN32)","void serialize_pipeline_caches() noexcept {\n#if defined(WEBGPU_DAWN) && defined(_WIN32) && !defined(AURORA_WINDOWS_STORE)")
     return s
 def input_init(s):
