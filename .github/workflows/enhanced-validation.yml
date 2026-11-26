@@ -33,3 +33,7 @@ jobs:
           python tools/patch-runtime-stage2.py upstream-check/runtime
           python tools/patch-runtime-stage2.py upstream-check/runtime --check | grep '^0 files'
           git -C upstream-check diff --check
+          python tools/patch-aurora-v0231.py upstream-check/aurora-main --check
+          python tools/patch-aurora-v0231.py upstream-check/aurora-main
+          python tools/patch-aurora-v0231.py upstream-check/aurora-main --check | grep '^0 Aurora files'
+          git -C upstream-check diff --check
