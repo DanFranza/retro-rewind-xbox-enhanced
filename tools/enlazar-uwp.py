@@ -107,13 +107,15 @@ def main() -> int:
             return 3
         libs_propias.append(str(lib))
     objetos = directos
+    if not objetos:
+        raise SystemExit("No direct runtime objects; refusing empty link")
     print(f"objetos directos: {len(directos)}  aurora_uwp.lib: {len(en_aurora)}  "
           f"deps_uwp.lib: {len(en_deps)}  apartados: {apartados}")
     rsp = salida.with_suffix(".rsp")
     lineas = [f'"{o}"' for o in objetos] + [f'"{l}"' for l in libs_propias]
     # SDL3: la rama dawnlight de uwp-dep trae un SDL3.dll de ESCRITORIO (importa MSVCP140.dll sin
     # _APP) que no carga en AppContainer; se usa el del commit ae39aa0, el mismo de Dusklight.
-    SDL_UWP = UWP_DEP.parent.parent / "uwp-dep-sdl" / "x64"
+    SDL_UWP = _entorno("MKW_UWP_SDL", "SDL3 UWP")
     lineas += [f'"{(SDL_UWP if l == "SDL3.lib" else UWP_DEP) / "lib" / l}"' for l in LIBS_UWP_DEP]
     lineas += LIBS_SISTEMA
     rsp.write_text("\n".join(lineas), encoding="utf-8")
