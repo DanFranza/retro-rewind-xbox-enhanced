@@ -68,7 +68,8 @@ HUELLA = None  # se resuelve en main()
 
 XBOX = _entorno('MKW_XBOX', 'la carpeta del lane Xbox, con package\\ y uwp-dep\\')
 BASE_PC = _entorno('MKW_BASE_PC', 'la carpeta Base de Wiicompiled')
-UWP_DEP_BIN = XBOX / "uwp-dep" / "x64" / "bin"
+UWP_DEP_BIN = _entorno("MKW_UWP_DEP", "UWP dependencies") / "bin"
+SDL_UWP_BIN = _entorno("MKW_UWP_SDL", "SDL3 UWP") / "bin"
 DLLS = ["SDL3.dll", "webgpu_dawn.dll", "nod.dll", "dxcompiler.dll", "dxil.dll", "libpng16.dll", "z.dll", "libuwp.dll"]
 RECURSOS = ["dsp_coef.bin", "initial_pipeline_cache.db"]
 
@@ -96,7 +97,7 @@ def main() -> int:
     for d in DLLS:
         # SDL3.dll: build UWP de verdad (commit ae39aa0 de uwp-dep, el de Dusklight); la de la rama
         # dawnlight es de escritorio y no carga en AppContainer.
-        origen = (XBOX / "uwp-dep-sdl" / "x64" / "bin" / d) if d == "SDL3.dll" else (UWP_DEP_BIN / d)
+        origen = (SDL_UWP_BIN / d) if d == "SDL3.dll" else (UWP_DEP_BIN / d)
         shutil.copy2(origen, raiz / d)
     for r in RECURSOS:
         shutil.copy2(BASE_PC / r, raiz / r)
