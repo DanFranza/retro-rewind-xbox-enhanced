@@ -67,7 +67,8 @@ QUITAR_CON_ARG = {"-MT", "-MF", "-o"}
 QUITAR = {"-MD", "-c", "-Winvalid-pch", "-pipe"}
 
 
-UWP_DEP_INCLUDE = _entorno('MKW_UWP_DEP', 'el bundle de dependencias de UWP')
+UWP_DEP_INCLUDE = _entorno('MKW_UWP_DEP', 'el bundle de dependencias de UWP') / 'include'
+SDL_UWP_INCLUDE = _entorno('MKW_UWP_SDL', 'SDL3 UWP') / 'include'
 COPIAS_PCH = {}
 
 
@@ -222,7 +223,7 @@ def compilar(job, salida: Path):
     flags = flags + extra_archivo
     # Las cabeceras de SDL3/webgpu para UWP (uwp-dep) van ANTES que las de la base mingw:
     # el SDL3 oficial aborta con «Windows RT/UWP is no longer supported in SDL».
-    cmd += EXTRA + ["-I" + str(UWP_DEP_INCLUDE)] + flags + ["-c", fuente, "-o", str(obj)]
+    cmd += EXTRA + ["-I" + str(SDL_UWP_INCLUDE), "-I" + str(UWP_DEP_INCLUDE)] + flags + ["-c", fuente, "-o", str(obj)]
     if es_asm:
         cmd = [str(CLANG)] + [f"--target={TARGET}"] + [f for f in flags if f.startswith(("-I", "-D"))] + ["-c", fuente, "-o", str(obj)]
     t0 = time.time()
@@ -269,7 +270,7 @@ def main():
             EXTRA.append("-DMKW_UWP=1")
             EXTRA.append("-DAURORA_WINDOWS_STORE=1")
     salida.mkdir(parents=True, exist_ok=True)
-    entradas = json.load(open(compdb, encoding="utf-8"))
+    entradas = json.loads(compdb.read_bytes())
     if OVERLAY:
         global BUILDWORKSPACE
         BUILDWORKSPACE = deducir_buildworkspace(entradas)
@@ -322,6 +323,8 @@ def main():
     print("  " + "  ".join(f"{k}={v}" for k, v in por_grupo.items()))
     sys.stdout.flush()
 
+    if not trabajos:
+        raise SystemExit("No compilation units selected; refusing empty build")
     t0 = time.time()
     resultados = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs_n) as ex:
@@ -364,7 +367,7 @@ def main():
     print("=== errores más frecuentes ===")
     for h in informe["histograma_errores"][:25]:
         print(f"  {h['veces']:4d}  {h['mensaje']}   [{h['ejemplo']}]")
-    return 0
+    return 1 if any(r["rc"] != 0 for r in resultados) else 0
 
 
 if __name__ == "__main__":
