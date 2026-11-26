@@ -1,0 +1,61 @@
+name: Private WiiCompiled preparation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prepare:
+    # Never run on a public repository; never upload game-derived files here.
+    if: ${{ github.event.repository.private == true }}
+    runs-on: windows-2022
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          repository: DanFranza/retro-rewind-xbox-enhanced
+          ref: 0534f6aa320797441c0b901fd78d4026c0b1d491
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install "google-auth>=2.40,<3" "requests>=2.32,<3"
+      - name: Download and verify private PAL ISO
+        shell: pwsh
+        env:
+          DRIVE_CREDENTIALS: ${{ secrets.MKW_DRIVE_CREDENTIALS }}
+          MKW_DRIVE_FILE_ID: ${{ secrets.MKW_DRIVE_FILE_ID }}
+          MKW_ISO_SHA256: ${{ secrets.MKW_ISO_SHA256 }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:DRIVE_CREDENTIALS -or -not $env:MKW_DRIVE_FILE_ID) { throw 'Missing Drive secrets' }
+          $credential = Join-Path $env:RUNNER_TEMP 'drive-credentials.json'
+          try {
+            [IO.File]::WriteAllText($credential, $env:DRIVE_CREDENTIALS)
+            $env:GOOGLE_APPLICATION_CREDENTIALS = $credential
+            Remove-Item Env:DRIVE_CREDENTIALS
+            python tools/download-private-iso.py "$env:RUNNER_TEMP\mkw.iso"
+            if ($LASTEXITCODE -ne 0) { throw 'ISO verification failed' }
+          } finally {
+            Remove-Item -LiteralPath $credential -Force -ErrorAction SilentlyContinue
+            Remove-Item Env:GOOGLE_APPLICATION_CREDENTIALS -ErrorAction SilentlyContinue
+          }
+      - name: Verify inputs and build PC reference
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $setup = Join-Path $env:RUNNER_TEMP 'WiiCompiled-Setup.exe'
+          Invoke-WebRequest -Uri 'https://github.com/patchzyy/Wiicompiled/releases/download/v0.2.31/WiiCompiled-Setup.exe' -OutFile $setup
+          $iso = Join-Path $env:RUNNER_TEMP 'mkw.iso'
+          $install = Join-Path $env:RUNNER_TEMP 'Install'
+          $p = Start-Process -FilePath $setup -ArgumentList @('--verify-inputs','--game',"`"$iso`"") -Wait -PassThru -NoNewWindow
+          if ($p.ExitCode -ne 0) { throw 'WiiCompiled rejected input' }
+          $p = Start-Process -FilePath $setup -ArgumentList @('--silent','--game',"`"$iso`"",'--install-dir',"`"$install`"") -Wait -PassThru -NoNewWindow
+          if ($p.ExitCode -ne 0) { throw 'Reference PC build failed' }
+          Write-Host 'PC reference build finished; Xbox overlay and mod are not yet built.'
+      - name: Remove personal inputs and workspace
+        if: always()
+        shell: pwsh
+        run: |
+          foreach ($name in @('mkw.iso','mkw.iso.part','Install','drive-credentials.json','WiiCompiled-Setup.exe')) {
+            Remove-Item -LiteralPath (Join-Path $env:RUNNER_TEMP $name) -Recurse -Force -ErrorAction SilentlyContinue
+          }
