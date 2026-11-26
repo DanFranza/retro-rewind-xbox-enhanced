@@ -29,3 +29,7 @@ jobs:
           python tools/patch-runtime-v0231.py upstream-check/runtime
           python tools/patch-runtime-v0231.py upstream-check/runtime --check | grep '^0 files'
           git -C upstream-check diff --check
+          python tools/patch-runtime-stage2.py upstream-check/runtime --check
+          python tools/patch-runtime-stage2.py upstream-check/runtime
+          python tools/patch-runtime-stage2.py upstream-check/runtime --check | grep '^0 files'
+          git -C upstream-check diff --check
