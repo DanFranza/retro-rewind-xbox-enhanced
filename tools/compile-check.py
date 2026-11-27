@@ -223,7 +223,9 @@ def compilar(job, salida: Path):
     flags = flags + extra_archivo
     # Las cabeceras de SDL3/webgpu para UWP (uwp-dep) van ANTES que las de la base mingw:
     # el SDL3 oficial aborta con «Windows RT/UWP is no longer supported in SDL».
-    cmd += EXTRA + ["-I" + str(SDL_UWP_INCLUDE), "-I" + str(UWP_DEP_INCLUDE)] + flags + ["-c", fuente, "-o", str(obj)]
+    generated_include = os.environ.get("MKW_GENERATED_INCLUDE_ROOT")
+    generated_flags = ["-I" + generated_include] if generated_include else []
+    cmd += EXTRA + ["-I" + str(SDL_UWP_INCLUDE), "-I" + str(UWP_DEP_INCLUDE)] + generated_flags + flags + ["-c", fuente, "-o", str(obj)]
     if es_asm:
         cmd = [str(CLANG)] + [f"--target={TARGET}"] + [f for f in flags if f.startswith(("-I", "-D"))] + ["-c", fuente, "-o", str(obj)]
     t0 = time.time()
@@ -312,7 +314,7 @@ def main():
             vistos.add(k)
             unicos.append((fuente, fl))
     trabajos = [t for t in unicos if (solo is None or grupo(t[0]) in solo)]
-    if OVERLAY:
+    if OVERLAY and (solo is None or "runtime" in solo):
         # El punto de entrada UWP se compila con los mismos flags que main.cpp del runtime
         for fuente, fl in unicos:
             if fuente.replace("\\", "/").endswith("runtime/src/main.cpp"):
@@ -332,6 +334,9 @@ def main():
         for n, fu in enumerate(concurrent.futures.as_completed(futs), 1):
             r = fu.result()
             resultados.append(r)
+            if r["rc"] != 0:
+                for error in r["errores"]:
+                    print(error, flush=True)
             if n % 25 == 0 or r["rc"] != 0 and r["grupo"] in ("runtime", "generated"):
                 ok = sum(1 for x in resultados if x["rc"] == 0)
                 print(f"  [{n}/{len(trabajos)}] ok={ok} fail={n - ok}  ({time.time() - t0:.0f}s)")
